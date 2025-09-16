@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    #viewer-container {
+      margin: auto;
+      position: relative; /* 캔버스를 겹치기 위한 기준점 */
+      width: fit-content; /* 내부 컨텐츠 크기에 맞춤 */
+      border: 1px solid #ccc;
+    }
+
+    /* PDF 렌더링 캔버스와 주석 캔버스가 겹치도록 설정 */
+    #pdf-canvas, #fabric-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    #toolbar {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>PDF Viewer</h1>
+
+<div id="toolbar">
+  <button id="prev-page">이전</button>
+  <span id="page-num"></span> / <span id="page-count"></span>
+  <button id="next-page">다음</button>
+</div>
+
+<div id="viewer-container">
+  <canvas id="pdf-canvas"></canvas>
+  <canvas id="fabric-canvas"></canvas>
+</div>
+
+<script src="/js/lib/jquery/3.7.1/jquery.min.js"></script>
+<script type="module" src="/js/lib/fabricjs/6.7.1/fabric.min.mjs"></script>
+<script type="module" src="/js/viewer.js"></script>
+
+</body>
+</html>

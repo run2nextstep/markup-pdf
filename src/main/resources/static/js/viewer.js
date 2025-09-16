@@ -4,6 +4,9 @@ import {Canvas, PencilBrush} from '/js/lib/fabricjs/6.7.1/index.min.mjs';
 // [추가] Fabric.js 캔버스 인스턴스를 저장할 변수
 let fabricCanvas = null;
 
+// [추가] 페이지별 주석 데이터를 저장할 객체
+let annotationStore = {};
+
 $(document).ready(function () {
   // PDF.js worker 설정
   pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/lib/pdfjs/5.4.149/pdf.worker.mjs';
@@ -56,6 +59,9 @@ $(document).ready(function () {
           renderPage(pageNumIsPending);
           pageNumIsPending = null;
         }
+
+        // [추가] 렌더링이 완료된 후, 해당 페이지의 주석을 불러옵니다.
+        loadAnnotations(num);
       });
 
       // 페이지 번호 업데이트
@@ -63,11 +69,41 @@ $(document).ready(function () {
     });
   };
 
+  // [추가] 현재 페이지의 주석을 저장하는 함수
+  const saveAnnotations = (pageNumToSave) => {
+    // 캔버스에 객체가 하나 이상 있을 때만 저장합니다.
+    if (fabricCanvas && fabricCanvas.getObjects().length > 0) {
+      console.log(`Saving annotations for page ${pageNumToSave}`);
+      // toJSON()은 캔버스의 모든 객체 정보를 JSON 형식으로 변환합니다.
+      annotationStore[pageNumToSave] = fabricCanvas.toJSON();
+    } else {
+      // 만약 객체가 없다면 (모두 지웠다면) 해당 페이지의 데이터는 삭제합니다.
+      delete annotationStore[pageNumToSave];
+    }
+  };
+
+  // [추가] 특정 페이지의 주석을 불러오는 함수
+  const loadAnnotations = (pageNumToLoad) => {
+    // 먼저 캔버스를 깨끗하게 비웁니다.
+    fabricCanvas.clear();
+
+    // 저장된 주석 데이터가 있는지 확인합니다.
+    if (annotationStore[pageNumToLoad]) {
+      console.log(`Loading annotations for page ${pageNumToLoad}`);
+      // loadFromJSON()으로 저장된 JSON 데이터를 캔버스에 다시 그립니다.
+      fabricCanvas.loadFromJSON(annotationStore[pageNumToLoad], () => {
+        // 데이터를 모두 불러온 후 캔버스를 다시 렌더링해야 보입니다.
+        fabricCanvas.requestRenderAll();
+      });
+    }
+  };
+
   // 이전 페이지 보기
   const showPrevPage = () => {
     if (pageNum <= 1) {
       return;
     }
+    saveAnnotations(pageNum); // 현재 페이지를 떠나기 전에 저장
     pageNum--;
     queueRenderPage(pageNum);
   };
@@ -77,6 +113,7 @@ $(document).ready(function () {
     if (pageNum >= pdfDoc.numPages) {
       return;
     }
+    saveAnnotations(pageNum); // 현재 페이지를 떠나기 전에 저장
     pageNum++;
     queueRenderPage(pageNum);
   };

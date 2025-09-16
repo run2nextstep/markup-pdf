@@ -7,6 +7,9 @@ let fabricCanvas = null;
 // [추가] 페이지별 주석 데이터를 저장할 객체
 let annotationStore = {};
 
+// [추가] 현재 문서의 식별자. 실제로는 동적으로 받아와야 합니다.
+const docId = 'sample.pdf';
+
 $(document).ready(function () {
   // PDF.js worker 설정
   pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/lib/pdfjs/5.4.149/pdf.worker.mjs';
@@ -131,7 +134,19 @@ $(document).ready(function () {
   pdfjsLib.getDocument(url).promise.then(doc => {
     pdfDoc = doc;
     $('#page-count').text(pdfDoc.numPages);
-    renderPage(pageNum);
+    // renderPage(pageNum);
+
+    // [추가] PDF 로드 성공 후, 서버에서 기존 주석을 불러옵니다.
+    $.get(`/api/annotations/${docId}`, function(data) {
+      console.log("Annotations loaded from server:", data);
+      // 불러온 데이터를 annotationStore에 페이지별로 정리합니다.
+      data.forEach(item => {
+        // DB에서 가져온 데이터는 문자열이므로 JSON 객체로 파싱합니다.
+        annotationStore[item.pageNum] = JSON.parse(item.annotationData);
+      });
+      // 주석 로드가 끝난 후 첫 페이지를 렌더링합니다.
+      renderPage(pageNum);
+    });
   }).catch(err => {
     console.error('Error loading PDF: ' + err);
   });
@@ -158,5 +173,42 @@ $(document).ready(function () {
     } else {
       $('#draw-btn').css('background-color', ''); // 기본 색상
     }
+  });
+
+  // [추가] 저장 버튼 이벤트 핸들러
+  $('#save-btn').on('click', () => {
+    // 현재 그리고 있는 페이지의 주석을 먼저 저장
+    saveAnnotations(pageNum);
+
+    alert('저장을 시작합니다.');
+    const savePromises = [];
+
+    // annotationStore에 있는 모든 페이지의 주석을 서버로 전송
+    for (const [page, data] of Object.entries(annotationStore)) {
+      const annotationData = {
+        docId: docId,
+        pageNum: parseInt(page),
+        // 서버로 보낼 때는 JSON 객체를 다시 문자열로 변환합니다.
+        annotationData: JSON.stringify(data)
+      };
+
+      const request = $.ajax({
+        url: '/api/annotations',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(annotationData)
+      });
+      savePromises.push(request);
+    }
+
+    // 모든 저장 요청이 완료될 때까지 기다립니다.
+    Promise.all(savePromises)
+      .then(() => {
+        alert('모든 주석이 성공적으로 저장되었습니다.');
+      })
+      .catch((err) => {
+        console.error('저장 중 오류 발생:', err);
+        alert('주석 저장에 실패했습니다.');
+      });
   });
 });

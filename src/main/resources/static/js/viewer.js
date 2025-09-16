@@ -108,15 +108,16 @@ $(document).ready(function () {
     // isDrawingMode 속성을 현재 상태의 반대로 변경 (true -> false, false -> true)
     fabricCanvas.isDrawingMode = !fabricCanvas.isDrawingMode;
 
-    fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
-
     // 사용자에게 현재 상태를 알려주기 위해 버튼 스타일 변경
     if (fabricCanvas.isDrawingMode) {
       $('#draw-btn').css('background-color', '#aaddff'); // 활성화 색상
 
-      // [추가] 펜의 색상과 두께 설정
-      fabricCanvas.freeDrawingBrush.color = "red"; // 펜 색상을 빨간색으로
-      fabricCanvas.freeDrawingBrush.width = 3;     // 펜 두께를 3으로
+      // [변경] 새로운 PencilBrush 인스턴스를 생성하여 할당합니다.
+      // 브러쉬의 속성을 설정하고, 캔버스의 freeDrawingBrush에 지정해줍니다.
+      const pencilBrush = new PencilBrush(fabricCanvas);
+      pencilBrush.color = "red";
+      pencilBrush.width = 3;
+      fabricCanvas.freeDrawingBrush = pencilBrush;
     } else {
       $('#draw-btn').css('background-color', ''); // 기본 색상
     }

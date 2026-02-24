@@ -44,7 +44,7 @@ public class SpringDocConfig {
     return GroupedOpenApi.builder().group("REST API")
         .pathsToMatch(paths)
         .packagesToScan(packagesToScan)
-        .addOperationCustomizer(tagCustomizer)
+//        .addOperationCustomizer(tagCustomizer)
         .addOpenApiCustomiser(openApi -> {
           openApi.info(new Info()
               .title("REST API Documentation")
@@ -88,7 +88,7 @@ public class SpringDocConfig {
         .pathsToMatch("/**")
         .pathsToExclude(paths)
         .packagesToScan(packagesToScan)
-        .addOperationCustomizer(tagCustomizer)
+//        .addOperationCustomizer(tagCustomizer)
         .addOpenApiCustomiser(openApi -> {
           openApi.info(new Info()
               .title("Web Controller Documentation")

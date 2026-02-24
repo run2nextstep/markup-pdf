@@ -15,12 +15,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 @Controller
-@Tag(name = "PDF API", description = "PDF API 입니다.")
+//@Tag(name = "PDF API", description = "PDF API 입니다.")
 public class PdfController {
 
   // 뷰어 페이지를 보여주는 기본 매핑
-  @Tag(name = "PDF API")
-  @Operation(summary = "Viewer", description = "PDF View 페이지 표시합니다.")
+//  @Tag(name = "PDF API")
+//  @Operation(summary = "Viewer", description = "PDF View 페이지 표시합니다.")
   @GetMapping("/viewer")
   public String viewerPage() {
     return "viewer"; // templates/viewer.html을 찾습니다.

@@ -60,6 +60,8 @@ dependencies {
   implementation 'org.apache.pdfbox:preflight:3.0.5'
   implementation 'org.apache.pdfbox:xmpbox:3.0.5'
 
+  implementation 'e-iceblue:spire.pdf.free:9.13.0'
+
   testImplementation 'org.apache.pdfbox:pdfbox-examples:3.0.5'
 
   implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.2'
